@@ -6,11 +6,19 @@ use axum::{
     routing::get,
     Router,
 };
+use r2d2::Pool;
+use redis::Client;
 use sea_orm::DatabaseConnection;
 use tracing::{info, warn};
 
-pub async fn start_server(pg_conn: DatabaseConnection) -> anyhow::Result<()> {
-    let app_state = AppState { pg_conn };
+pub async fn start_server(
+    pg_conn: DatabaseConnection,
+    redis_pool: Pool<Client>,
+) -> anyhow::Result<()> {
+    let app_state = AppState {
+        pg_conn,
+        redis_pool,
+    };
     let app = Router::new()
         .route("/", get(handler))
         .layer(
@@ -30,6 +38,7 @@ pub async fn start_server(pg_conn: DatabaseConnection) -> anyhow::Result<()> {
 #[derive(Clone)]
 pub struct AppState {
     pg_conn: DatabaseConnection,
+    redis_pool: Pool<Client>,
 }
 
 async fn shutdown_signal() {
@@ -69,6 +78,7 @@ async fn auth(req: Request, next: Next) -> Result<Response, StatusCode> {
 async fn handler(app_state: State<AppState>) -> Response<String> {
     info!("handler");
     let _ = app_state.pg_conn.ping().await;
+    let _ = app_state.redis_pool.get();
     Response::new("hello world".to_string())
 }
 

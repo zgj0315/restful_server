@@ -9,6 +9,7 @@ This is a RESTful Server Demo build with axum and sea-orm
 ### sea-orm
 - [x] migration
 - [x] entity
+- [x] pg conn
 
 ```shell
 # Install sea-orm-cli whit cargo
@@ -56,4 +57,12 @@ sea-orm-cli generate entity --with-serde both \
     -u postgres://restful_server_user:restful_server_password@localhost:5432/restful_server_db \
     -o entity/src \
     -l
+```
+
+### redis
+- [ ] redis conn
+```shell
+# Start a redis server
+docker run --rm -d -p 6379:6379 --name restful_server_redis -d redis:5.0.14 --requirepass restful_server_password
+
 ```
