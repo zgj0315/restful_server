@@ -44,4 +44,16 @@ cargo run \
     -- refresh \
     -u postgres://restful_server_user:restful_server_password@localhost:5432/restful_server_db
 
+# init entity lib
+cargo new --lib entity
+
+# add sea-orm and serde to entity Cargo.toml
+sea-orm = "0.12"
+serde = {version = "1.0", features = ["derive"]}
+
+# generate entity
+sea-orm-cli generate entity --with-serde both \
+    -u postgres://restful_server_user:restful_server_password@localhost:5432/restful_server_db \
+    -o entity/src \
+    -l
 ```
