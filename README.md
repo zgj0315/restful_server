@@ -29,4 +29,19 @@ rm migration/src/m20220101_000001_create_table.rs
 
 # Modify kl_role and kl_user rs like demo
 
+# Start a postgres server
+docker run \
+    --rm \
+    --name "restful_server_postgres" \
+    --env POSTGRES_DB="restful_server_db" \
+    --env POSTGRES_USER="restful_server_user" \
+    --env POSTGRES_PASSWORD="restful_server_password" \
+    -d -p 5432:5432 postgres:12
+
+# refresh migration to pg
+cargo run \
+    --manifest-path migration/Cargo.toml \
+    -- refresh \
+    -u postgres://restful_server_user:restful_server_password@localhost:5432/restful_server_db
+
 ```
