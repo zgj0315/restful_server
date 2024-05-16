@@ -7,6 +7,11 @@ version = "0.1.0"
 anyhow = "1.0"
 axum = "0.7"
 chrono = "0.4"
+sea-orm = {version = "0.12", features = [
+  "sqlx-postgres",
+  "runtime-tokio-rustls",
+  "macros",
+]}
 tokio = {version = "1", features = ["macros", "rt-multi-thread", "signal"]}
 tower = "0.4"
 tracing = "0.1"

@@ -1,25 +1,35 @@
 use axum::{
-    extract::Request,
+    extract::{Request, State},
     http::StatusCode,
     middleware::{self, Next},
     response::Response,
     routing::get,
     Router,
 };
+use sea_orm::DatabaseConnection;
 use tracing::{info, warn};
 
-pub async fn start_server() -> anyhow::Result<()> {
-    let app = Router::new().route("/", get(handler)).layer(
-        tower::ServiceBuilder::new()
-            .layer(middleware::from_fn(auth)) // step 1
-            .layer(middleware::from_fn(check_req)), // step 2
-    );
+pub async fn start_server(pg_conn: DatabaseConnection) -> anyhow::Result<()> {
+    let app_state = AppState { pg_conn };
+    let app = Router::new()
+        .route("/", get(handler))
+        .layer(
+            tower::ServiceBuilder::new()
+                .layer(middleware::from_fn(auth)) // step 1
+                .layer(middleware::from_fn(check_req)), // step 2
+        )
+        .with_state(app_state);
     let listener = tokio::net::TcpListener::bind("0.0.0.0:2023").await?;
     info!("listening on {}", listener.local_addr()?);
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
         .await?;
     Ok(())
+}
+
+#[derive(Clone)]
+pub struct AppState {
+    pg_conn: DatabaseConnection,
 }
 
 async fn shutdown_signal() {
@@ -56,8 +66,9 @@ async fn auth(req: Request, next: Next) -> Result<Response, StatusCode> {
 }
 
 // #[instrument]
-async fn handler() -> Response<String> {
+async fn handler(app_state: State<AppState>) -> Response<String> {
     info!("handler");
+    let _ = app_state.pg_conn.ping().await;
     Response::new("hello world".to_string())
 }
 

@@ -8,7 +8,7 @@ This is a RESTful Server Demo build with axum and sea-orm
 
 ### sea-orm
 - [x] migration
-- [ ] entity
+- [x] entity
 
 ```shell
 # Install sea-orm-cli whit cargo
