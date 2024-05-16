@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
 
-members = ["restful_service"]
+members = ["restful_service", "migration"]
